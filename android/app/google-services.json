@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "851457401257",
+    "project_id": "form-feedback-7a3b8",
+    "storage_bucket": "form-feedback-7a3b8.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:851457401257:android:a7407ce18d4cc1c81c64b8",
+        "android_client_info": {
+          "package_name": "com.example.form_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAMniTa7ovKsq7aEK4Fxmkc_l_MKpC3tRM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
