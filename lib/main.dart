@@ -3,6 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:form_app/screens/auth/login_screen.dart';
+import 'package:form_app/screens/students/student_qr.dart';
 import 'package:form_app/screens/teacher/teacher_home_screen.dart';
 import 'package:form_app/screens/students/student_home_screen.dart';
 import 'package:form_app/services/auth_service.dart';
@@ -117,7 +118,7 @@ class MyApp extends StatelessWidget {
                     return const TeacherHomeScreen(); // Redirige a la pantalla del profesor
                   } else if (role == 'student') {
                     print('Navegando a StudentHomeScreen');
-                    return const StudentHomeScreen(); // Redirige a la pantalla del estudiante
+                    return const QrScannerScreen(); // Redirige a la pantalla del estudiante
                   }
                 }
                 // Si no se encuentra el rol o hay un error, redirige a la pantalla de inicio de sesión.
