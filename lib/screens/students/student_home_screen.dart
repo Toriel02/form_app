@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:form_app/screens/students/student_qr.dart';
 import 'package:form_app/services/auth_service.dart'; // Asegúrate de que la ruta sea correcta
 import 'package:form_app/screens/auth/login_screen.dart'; // Asegúrate de que la ruta sea correcta
 import 'package:firebase_auth/firebase_auth.dart'; // Importar User de firebase_auth
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class StudentHomeScreen extends StatefulWidget {
   const StudentHomeScreen({super.key});
@@ -26,6 +28,21 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
     // Después de cerrar sesión, navega de regreso a la pantalla de inicio de sesión
     Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => const LoginScreen()));
   }
+
+  void _goToQRScanner() {
+    Navigator.of(context).push(MaterialPageRoute(builder: (_) => const QRScannerScreen()));
+  }
+
+  Future<String?> _getUserName() async {
+  final uid = _currentUser?.uid;
+  if (uid == null) return null;
+
+  final doc = await FirebaseFirestore.instance.collection('users').doc(FirebaseAuth.instance.currentUser!.uid).get();
+  if (doc.exists) {
+    return doc.data()?['name'] as String?;
+  }
+  return null;
+}
 
   @override
   Widget build(BuildContext context) {
@@ -54,10 +71,28 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
             ),
             const SizedBox(height: 16),
             if (_currentUser != null)
-              Text(
-                'Has iniciado sesión como: ${_currentUser!.email}',
-                style: Theme.of(context).textTheme.bodyMedium,
-                textAlign: TextAlign.center,
+              FutureBuilder<String?>(
+                future: _getUserName(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const CircularProgressIndicator();
+                  } else if (snapshot.hasError) {
+                    return Text('Error al cargar el nombre: ${snapshot.error}');
+                  } else if (snapshot.hasData && snapshot.data != null) {
+                    return Text(
+                      'Has iniciado sesión como: ${snapshot.data}',
+                      style: Theme.of(context).textTheme.bodyMedium,
+                      textAlign: TextAlign.center,
+                    );
+                  } else {
+                    // fallback si no hay nombre guardado
+                    return Text(
+                      'Has iniciado sesión como: ${_currentUser!.email}',
+                      style: Theme.of(context).textTheme.bodyMedium,
+                      textAlign: TextAlign.center,
+                    );
+                  }
+                },
               ),
             const SizedBox(height: 32),
             // Aquí irán las opciones para acceder a formularios, ver historial, etc.
@@ -66,6 +101,17 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
               'Esta es tu pantalla principal como estudiante.',
               style: Theme.of(context).textTheme.bodyLarge,
               textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 32),
+            ElevatedButton.icon(
+              icon: const Icon(Icons.qr_code_scanner),
+              label: const Text('Responder Encuesta'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blue.shade600,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              ),
+              onPressed: _goToQRScanner,
             ),
           ],
         ),

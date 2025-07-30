@@ -4,7 +4,7 @@ import 'package:qr_flutter/qr_flutter.dart';
 import 'dart:typed_data'; // Para ByteData
 
 // Nuevas importaciones para guardar imagen y manejar permisos
-import 'package:image_gallery_saver/image_gallery_saver.dart';
+// import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class CreateFormScreen extends StatefulWidget {
@@ -57,41 +57,41 @@ class _CreateFormScreenState extends State<CreateFormScreen> {
         status = await Permission.photos.request();
     }
     
-    if (status.isGranted) {
-      try {
-        final result = await ImageGallerySaver.saveImage(
-          _qrImageBytes!,
-          quality: 80, // Calidad de la imagen (0-100)
-          name: "QR_Formulario_${_titleController.text.replaceAll(' ', '_')}_${DateTime.now().millisecondsSinceEpoch}",
-        );
-        print("QR guardado: $result");
-        if (result['isSuccess']) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Código QR guardado en la galería!')),
-          );
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Error al guardar QR: ${result['errorMessage']}')),
-          );
-        }
-      } catch (e) {
-        print('Excepción al guardar QR: $e');
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error al guardar el código QR: $e')),
-        );
-      }
-    } else if (status.isDenied) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Permiso de almacenamiento denegado. No se pudo guardar el QR.')),
-      );
-    } else if (status.isPermanentlyDenied) {
-        ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-                content: const Text('Permiso de almacenamiento permanentemente denegado. Habilítalo en Ajustes.'),
-                action: SnackBarAction(label: 'Abrir Ajustes', onPressed: openAppSettings),
-            ),
-        );
-    }
+    // if (status.isGranted) {
+    //   try {
+    //     final result = await ImageGallerySaver.saveImage(
+    //       _qrImageBytes!,
+    //       quality: 80, // Calidad de la imagen (0-100)
+    //       name: "QR_Formulario_${_titleController.text.replaceAll(' ', '_')}_${DateTime.now().millisecondsSinceEpoch}",
+    //     );
+    //     print("QR guardado: $result");
+    //     if (result['isSuccess']) {
+    //       ScaffoldMessenger.of(context).showSnackBar(
+    //         const SnackBar(content: Text('Código QR guardado en la galería!')),
+    //       );
+    //     } else {
+    //       ScaffoldMessenger.of(context).showSnackBar(
+    //         SnackBar(content: Text('Error al guardar QR: ${result['errorMessage']}')),
+    //       );
+    //     }
+    //   } catch (e) {
+    //     print('Excepción al guardar QR: $e');
+    //     ScaffoldMessenger.of(context).showSnackBar(
+    //       SnackBar(content: Text('Error al guardar el código QR: $e')),
+    //     );
+    //   }
+    // } else if (status.isDenied) {
+    //   ScaffoldMessenger.of(context).showSnackBar(
+    //     const SnackBar(content: Text('Permiso de almacenamiento denegado. No se pudo guardar el QR.')),
+    //   );
+    // } else if (status.isPermanentlyDenied) {
+    //     ScaffoldMessenger.of(context).showSnackBar(
+    //         SnackBar(
+    //             content: const Text('Permiso de almacenamiento permanentemente denegado. Habilítalo en Ajustes.'),
+    //             action: SnackBarAction(label: 'Abrir Ajustes', onPressed: openAppSettings),
+    //         ),
+    //     );
+    // }
   }
 
   Future<void> _createForm() async {
