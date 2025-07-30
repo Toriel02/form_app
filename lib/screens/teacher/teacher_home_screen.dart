@@ -3,6 +3,9 @@ import 'package:form_app/services/auth_service.dart'; // Asegúrate de que la ru
 import 'package:form_app/screens/auth/login_screen.dart'; // Asegúrate de que la ruta sea correcta
 import 'package:firebase_auth/firebase_auth.dart'; // Importar User de firebase_auth
 
+// Importa la pantalla de creación de formularios
+import 'package:form_app/screens/teacher/create_form_screen.dart'; // <--- Importación clave
+
 class TeacherHomeScreen extends StatefulWidget {
   const TeacherHomeScreen({super.key});
 
@@ -60,12 +63,51 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                 textAlign: TextAlign.center,
               ),
             const SizedBox(height: 32),
-            // Aquí irán las opciones para crear formularios, ver respuestas, etc.
-            // Por ahora, solo un marcador de posición.
-            Text(
-              'Esta es tu pantalla principal como profesor.',
-              style: Theme.of(context).textTheme.bodyLarge,
-              textAlign: TextAlign.center,
+            // Botón para crear nuevo formulario (navegando a una nueva pantalla)
+            ElevatedButton.icon(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const CreateFormScreen()), // <--- Navegación a la pantalla
+                );
+              },
+              icon: const Icon(Icons.add),
+              label: const Text('Crear Nuevo Formulario'),
+              style: ElevatedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                textStyle: const TextStyle(fontSize: 18),
+              ),
+            ),
+            const SizedBox(height: 20),
+            // Otros botones o contenido para el profesor
+            ElevatedButton.icon(
+              onPressed: () {
+                // TODO: Navegar a la pantalla para ver formularios creados
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Ver Formularios Creados (Próximamente)')),
+                );
+              },
+              icon: const Icon(Icons.list_alt),
+              label: const Text('Ver Mis Formularios'),
+              style: ElevatedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                textStyle: const TextStyle(fontSize: 18),
+              ),
+            ),
+            const SizedBox(height: 20),
+             ElevatedButton.icon(
+              onPressed: () {
+                // TODO: Navegar a la pantalla para ver respuestas
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Ver Respuestas de Formularios (Próximamente)')),
+                );
+              },
+              icon: const Icon(Icons.inbox),
+              label: const Text('Ver Respuestas'),
+              style: ElevatedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                textStyle: const TextStyle(fontSize: 18),
+              ),
             ),
           ],
         ),
