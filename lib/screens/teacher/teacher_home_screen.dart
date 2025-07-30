@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:form_app/screens/teacher/my_forms_screen.dart';
 import 'package:form_app/services/auth_service.dart'; // Asegúrate de que la ruta sea correcta
 import 'package:form_app/screens/auth/login_screen.dart'; // Asegúrate de que la ruta sea correcta
 import 'package:firebase_auth/firebase_auth.dart'; // Importar User de firebase_auth
@@ -81,19 +82,27 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
             const SizedBox(height: 20),
             // Otros botones o contenido para el profesor
             ElevatedButton.icon(
-              onPressed: () {
-                // TODO: Navegar a la pantalla para ver formularios creados
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Ver Formularios Creados (Próximamente)')),
-                );
-              },
-              icon: const Icon(Icons.list_alt),
-              label: const Text('Ver Mis Formularios'),
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-                textStyle: const TextStyle(fontSize: 18),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const MyFormsScreen()),
+                  );
+                },
+                icon: const Icon(Icons.list_alt), // Un icono relevante, como una lista o formulario
+                label: const Text(
+                  'Ver Mis Formularios',
+                  style: TextStyle(fontSize: 18),
+                ),
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  backgroundColor: Colors.blue.shade600, // Un color que combine con tu tema
+                  foregroundColor: Colors.white,
+                  elevation: 5, // Sombra para un efecto más elevado
+                ),
               ),
-            ),
             const SizedBox(height: 20),
              ElevatedButton.icon(
               onPressed: () {

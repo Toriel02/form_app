@@ -1,11 +1,12 @@
 // lib/services/firestore_service.dart
-
+import 'package:flutter/foundation.dart'; // Importar para kDebugMode
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart'; // Para obtener el UID del estudiante
 
 class FirestoreService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-
+  final FirebaseFirestore _db = FirebaseFirestore.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
   // Constructor (puede ser vacío si solo tienes métodos estáticos, pero es buena práctica)
   // FirestoreService(); // Si haces los métodos estáticos, no necesitarías instanciar la clase.
 
@@ -78,4 +79,31 @@ class FirestoreService {
   // - getFormsByTeacherId (para que el profesor vea sus formularios)
   // - getResponsesByFormId (para que el profesor vea las respuestas de un formulario específico)
   // - getMyResponses (para que el estudiante vea sus propias respuestas)
+Stream<List<Map<String, dynamic>>> getMyForms() {
+    User? currentUser = _auth.currentUser;
+    if (currentUser == null) {
+      if (kDebugMode) {
+        print("DEBUG: getMyForms - No hay usuario autenticado.");
+      }
+      return Stream.value([]); // Retorna un stream vacío si no hay usuario
+    }
+
+    final String currentUserId = currentUser.uid;
+    if (kDebugMode) {
+      print("DEBUG: getMyForms - UID del usuario actual: $currentUserId");
+    }
+
+    return _db
+        .collection('forms')
+        .where('teacherId', isEqualTo: currentUserId) // Filtra por el ID del profesor actual
+        .orderBy('fechaCreacion', descending: true) // Ordena por la fecha de creación (asegúrate que el campo sea 'fechaCreacion')
+        .snapshots() // Obtiene un stream de actualizaciones en tiempo real
+        .map((snapshot) => snapshot.docs.map((doc) {
+              // Convierte cada documento a un mapa, incluyendo el ID del documento
+              if (kDebugMode) {
+                print("DEBUG: Formulario encontrado - ID: ${doc.id}, teacherId en DB: ${doc.data()['teacherId']}");
+              }
+              return {'id': doc.id, ...doc.data()};
+            }).toList());
+  }
 }
