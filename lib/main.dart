@@ -118,7 +118,7 @@ class MyApp extends StatelessWidget {
                     return const TeacherHomeScreen(); // Redirige a la pantalla del profesor
                   } else if (role == 'student') {
                     print('Navegando a StudentHomeScreen');
-                    return const QrScannerScreen(); // Redirige a la pantalla del estudiante
+                    return const StudentHomeScreen(); // Redirige a la pantalla del estudiante
                   }
                 }
                 // Si no se encuentra el rol o hay un error, redirige a la pantalla de inicio de sesión.
