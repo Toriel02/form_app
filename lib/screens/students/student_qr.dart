@@ -67,9 +67,10 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
 
   void _onDetect(BarcodeCapture barcode) {
     final String? code = barcode.barcodes.first.rawValue;
-
     if (code != null && !_dialogShown) {
-      print('Código QR detectado: $code');
+      ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Código detectado: $code')),
+    );
       controller.stop();
       _dialogShown = true;
       _verificarEncuesta(code);
