@@ -1,41 +1,32 @@
-// lib/services/firestore_service.dart
 import 'package:flutter/foundation.dart'; // Importar para kDebugMode
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:form_app/screens/encuestas/encuesta_1.dart';
-import 'package:form_app/screens/encuestas/encuesta_2.dart';
-import 'package:form_app/screens/encuestas/encuesta_3.dart';
-import 'package:form_app/screens/encuestas/encuesta_4.dart';
-import 'package:form_app/screens/encuestas/encuesta_5.dart'; // Para obtener el UID del estudiante
 
 class FirestoreService {
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final FirebaseFirestore _db = FirebaseFirestore.instance;
+  final FirebaseFirestore _db = FirebaseFirestore.instance; // Usar _db consistentemente
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
 
-  // --- Datos de ejemplo para las encuestas ---
-  // Estos datos deberían ser definidos en un lugar apropiado (ej. un archivo de constantes o modelos)
-  // Por simplicidad, los incluyo aquí.
+  // --- Datos de ejemplo para las encuestas (AHORA CON CAMPO 'id' PARA CADA PREGUNTA) ---
   final List<Map<String, dynamic>> encuesta1 = [
-    {'pregunta': '¿Qué tan efectiva fue la dinámica utilizada en clase?', 'tipo': 'escala', 'opciones': ['1', '2', '3', '4', '5']},
-    {'pregunta': '¿La dinámica te ayudó a comprender mejor el tema?', 'tipo': 'booleana'},
+    {'id': 'q1_dinamica', 'pregunta': '¿Qué tan efectiva fue la dinámica utilizada en clase?', 'tipo': 'escala', 'opciones': [1, 2, 3, 4, 5]},
+    {'id': 'q2_comprension', 'pregunta': '¿La dinámica te ayudó a comprender mejor el tema?', 'tipo': 'booleana'},
   ];
   final List<Map<String, dynamic>> encuesta2 = [
-    {'pregunta': '¿Qué tan clara fue la explicación del profesor?', 'tipo': 'escala', 'opciones': ['1', '2', '3', '4', '5']},
-    {'pregunta': '¿El profesor resolvió tus dudas de manera efectiva?', 'tipo': 'booleana'},
+    {'id': 'q3_explicacion', 'pregunta': '¿Qué tan clara fue la explicación del profesor?', 'tipo': 'escala', 'opciones': [1, 2, 3, 4, 5]},
+    {'id': 'q4_dudas', 'pregunta': '¿El profesor resolvió tus dudas de manera efectiva?', 'tipo': 'booleana'},
   ];
   final List<Map<String, dynamic>> encuesta3 = [
-    {'pregunta': '¿Consideras que el ritmo del curso es adecuado?', 'tipo': 'escala', 'opciones': ['1', '2', '3', '4', '5']},
-    {'pregunta': '¿La dificultad de los temas es apropiada?', 'tipo': 'booleana'},
+    {'id': 'q5_ritmo', 'pregunta': '¿Consideras que el ritmo del curso es adecuado?', 'tipo': 'escala', 'opciones': [1, 2, 3, 4, 5]},
+    {'id': 'q6_dificultad', 'pregunta': '¿La dificultad de los temas es apropiada?', 'tipo': 'booleana'},
   ];
   final List<Map<String, dynamic>> encuesta4 = [
-    {'pregunta': '¿Los recursos y materiales del curso son útiles?', 'tipo': 'escala', 'opciones': ['1', '2', '3', '4', '5']},
-    {'pregunta': '¿Hay suficientes materiales complementarios?', 'tipo': 'booleana'},
+    {'id': 'q7_recursos', 'pregunta': '¿Los recursos y materiales del curso son útiles?', 'tipo': 'escala', 'opciones': [1, 2, 3, 4, 5]},
+    {'id': 'q8_materiales', 'pregunta': '¿Hay suficientes materiales complementarios?', 'tipo': 'booleana'},
   ];
   final List<Map<String, dynamic>> encuesta5 = [
-    {'pregunta': '¿El contenido del curso es relevante para tus intereses?', 'tipo': 'escala', 'opciones': ['1', '2', '3', '4', '5']},
-    {'pregunta': '¿El curso te prepara para desafíos futuros?', 'tipo': 'booleana'},
+    {'id': 'q9_relevancia', 'pregunta': '¿El contenido del curso es relevante para tus intereses?', 'tipo': 'escala', 'opciones': [1, 2, 3, 4, 5]},
+    {'id': 'q10_preparacion', 'pregunta': '¿El curso te prepara para desafíos futuros?', 'tipo': 'booleana'},
   ];
   // --- Fin de datos de ejemplo ---
 
@@ -71,33 +62,33 @@ class FirestoreService {
   }
 
   // Método para obtener los formularios del profesor actual en tiempo real
-  Stream<List<Map<String, dynamic>>> getMyFormsDuplicate() {
-      User? currentUser = _auth.currentUser;
-      if (currentUser == null) {
-        if (kDebugMode) {
-          print("DEBUG: getMyFormsDuplicate - No hay usuario autenticado.");
-        }
-        return Stream.value([]); // Retorna un stream vacío si no hay usuario
-      }
-  
-      final String currentUserId = currentUser.uid;
+  Stream<List<Map<String, dynamic>>> getMyForms() { // Renombrado de getMyFormsDuplicate a getMyForms
+    User? currentUser = _auth.currentUser;
+    if (currentUser == null) {
       if (kDebugMode) {
-        print("DEBUG: getMyFormsDuplicate - UID del usuario actual: $currentUserId");
+        print("DEBUG: getMyForms - No hay usuario autenticado.");
       }
-  
-      return _db
-          .collection('forms')
-          .where('teacherId', isEqualTo: currentUserId) // Filtra por el ID del profesor actual
-          .orderBy('fechaCreacion', descending: true) // Ordena por la fecha de creación (asegúrate que el campo sea 'fechaCreacion')
-          .snapshots() // Obtiene un stream de actualizaciones en tiempo real
-          .map((snapshot) => snapshot.docs.map((doc) {
-                // Convierte cada documento a un mapa, incluyendo el ID del documento
-                if (kDebugMode) {
-                  print("DEBUG: Formulario encontrado - ID: ${doc.id}, teacherId en DB: ${doc.data()['teacherId']}");
-                }
-                return {'id': doc.id, ...doc.data()};
-              }).toList());
+      return Stream.value([]); // Retorna un stream vacío si no hay usuario
     }
+
+    final String currentUserId = currentUser.uid;
+    if (kDebugMode) {
+      print("DEBUG: getMyForms - UID del usuario actual: $currentUserId");
+    }
+
+    return _db
+        .collection('forms')
+        .where('teacherId', isEqualTo: currentUserId) // Filtra por el ID del profesor actual
+        .orderBy('fechaCreacion', descending: true) // Ordena por la fecha de creación (asegúrate que el campo sea 'fechaCreacion')
+        .snapshots() // Obtiene un stream de actualizaciones en tiempo real
+        .map((snapshot) => snapshot.docs.map((doc) {
+              // Convierte cada documento a un mapa, incluyendo el ID del documento
+              if (kDebugMode) {
+                print("DEBUG: Formulario encontrado - ID: ${doc.id}, teacherId en DB: ${doc.data()['teacherId']}");
+              }
+              return {'id': doc.id, ...doc.data()};
+            }).toList());
+  }
 
   // --- Nuevas Funciones para Encuestas ---
 
@@ -159,16 +150,17 @@ class FirestoreService {
 
   // Función para obtener encuestas por profesor en tiempo real
   Stream<List<Map<String, dynamic>>> obtenerEncuestasPorProfesor(String teacherId) {
-  return FirebaseFirestore.instance
-      .collection('encuestas')
-      .where('teacherId', isEqualTo: teacherId)
-      .snapshots()
-      .map((snapshot) => snapshot.docs.map((doc) {
-            final data = doc.data();
-            data['id'] = doc.id; 
-            return data;
-          }).toList());
-}
+    return _db // Usar _db
+        .collection('encuestas')
+        .where('teacherId', isEqualTo: teacherId)
+        .orderBy('fechaCreacion', descending: true) // Añadido orden para consistencia
+        .snapshots()
+        .map((snapshot) => snapshot.docs.map((doc) {
+              final data = doc.data();
+              data['id'] = doc.id;
+              return data;
+            }).toList());
+  }
 
   // Función para obtener encuestas por profesor una sola vez (no en tiempo real)
   Future<List<Map<String, dynamic>>> obtenerEncuestasPorProfesorUnaVez(String teacherId) async {
@@ -186,73 +178,18 @@ class FirestoreService {
 
   // NAVEGACION ESCANER
   Future<Map<String, dynamic>?> obtenerEncuestaPorId(String id) async {
-    final doc = await _db.collection('encuestas').doc(id).get();
-    return doc.data();
-  }
-
-  // **** NUEVA FUNCIÓN: Añadir una respuesta a Firestore ****
-  Future<String?> addResponseToFirestore({
-    required String formId,           // El ID del formulario al que se responde
-    required String teacherId,        // El ID del profesor que creó el formulario
-    required Map<String, dynamic> responseData, // Las respuestas reales del formulario
-  }) async {
     try {
-      final user = FirebaseAuth.instance.currentUser;
-      if (user == null) {
-        print("Error: No hay usuario autenticado.");
+      final doc = await _db.collection('encuestas').doc(id).get();
+      if (doc.exists) {
+        // Retorna el mapa de datos y añade el ID del documento
+        return {'id': doc.id, ...doc.data() as Map<String, dynamic>};
+      } else {
         return null;
       }
-      final studentId = user.uid; // El UID del estudiante actual
-
-      // Datos del documento de respuesta a añadir
-      final Map<String, dynamic> nuevaRespuestaData = {
-        "formId": formId,
-        "studentId": studentId,
-        "teacherId": teacherId, // Necesitamos este para las reglas de seguridad del profesor
-        "data": responseData,   // El mapa con las respuestas
-        "timestamp": FieldValue.serverTimestamp(), // Fecha y hora de envío de la respuesta
-      };
-
-      // Añade el documento a la colección 'responses'
-      DocumentReference docRef = await _firestore.collection("responses").add(nuevaRespuestaData);
-
-      print("Documento de respuesta añadido con ID: ${docRef.id}");
-      return docRef.id; // Retorna el ID del documento de respuesta
     } catch (e) {
-      print("Error al añadir el documento de respuesta: $e");
-      return null;
+      // ¡IMPORTANTE! Relanzar la excepción para que la pantalla que llama pueda manejarla.
+      // Esto permite que el bloque `on FirebaseException catch (e)` en QRScannerScreen funcione.
+      rethrow; 
     }
-  }
-
-  // Aquí podrías añadir funciones para:
-  // - getFormsByTeacherId (para que el profesor vea sus formularios)
-  // - getResponsesByFormId (para que el profesor vea las respuestas de un formulario específico)
-  // - getMyResponses (para que el estudiante vea sus propias respuestas)
-Stream<List<Map<String, dynamic>>> getMyForms() {
-    User? currentUser = _auth.currentUser;
-    if (currentUser == null) {
-      if (kDebugMode) {
-        print("DEBUG: getMyForms - No hay usuario autenticado.");
-      }
-      return Stream.value([]); // Retorna un stream vacío si no hay usuario
-    }
-
-    final String currentUserId = currentUser.uid;
-    if (kDebugMode) {
-      print("DEBUG: getMyForms - UID del usuario actual: $currentUserId");
-    }
-
-    return _db
-        .collection('forms')
-        .where('teacherId', isEqualTo: currentUserId) // Filtra por el ID del profesor actual
-        .orderBy('fechaCreacion', descending: true) // Ordena por la fecha de creación (asegúrate que el campo sea 'fechaCreacion')
-        .snapshots() // Obtiene un stream de actualizaciones en tiempo real
-        .map((snapshot) => snapshot.docs.map((doc) {
-              // Convierte cada documento a un mapa, incluyendo el ID del documento
-              if (kDebugMode) {
-                print("DEBUG: Formulario encontrado - ID: ${doc.id}, teacherId en DB: ${doc.data()['teacherId']}");
-              }
-              return {'id': doc.id, ...doc.data()};
-            }).toList());
   }
 }
