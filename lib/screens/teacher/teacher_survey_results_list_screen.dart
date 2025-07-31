@@ -1,9 +1,7 @@
-// lib/screens/teacher/teacher_survey_results_list_screen.dart
-
 import 'package:flutter/material.dart';
 import 'package:form_app/services/firestore_services.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart'; // Necesario para Timestamp si lo usas
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:form_app/screens/teacher/resultados_encuesta_screen.dart';
 
 class TeacherSurveyResultsListScreen extends StatefulWidget {
@@ -32,7 +30,7 @@ class _TeacherSurveyResultsListScreenState extends State<TeacherSurveyResultsLis
         backgroundColor: Colors.blue.shade700,
         iconTheme: const IconThemeData(color: Colors.white),
       ),
-      // CAMBIO CLAVE AQUÍ: El StreamBuilder ahora espera List<Map<String, dynamic>>
+      //El StreamBuilder ahora espera List<Map<String, dynamic>>
       body: StreamBuilder<List<Map<String, dynamic>>>(
         stream: _firestoreService.obtenerEncuestasPorProfesor(_currentUser!.uid),
         builder: (context, snapshot) {
@@ -54,12 +52,7 @@ class _TeacherSurveyResultsListScreenState extends State<TeacherSurveyResultsLis
             itemCount: encuestas.length,
             itemBuilder: (context, index) {
               final encuestaData = encuestas[index]; // Accede directamente al mapa
-              // Asumo que tu mapa ya contiene el 'id' de la encuesta como un campo.
-              // Si el ID de la encuesta no está dentro del mapa, necesitarás pasarlo
-              // desde tu FirestoreService al hacer el mapeo original.
-              // Por ahora, asumiré que el ID está dentro del mapa con la clave 'id'.
-              // Si no es así, dime cómo lo manejas en tu FirestoreService.
-              final encuestaId = encuestaData['id'] as String; // Asumo que el ID está en el mapa
+              final encuestaId = encuestaData['id'] as String; 
               final titulo = encuestaData['titulo'] ?? 'Encuesta sin título';
               final fechaCreacion = (encuestaData['fechaCreacion'] is Timestamp)
                   ? (encuestaData['fechaCreacion'] as Timestamp).toDate()

@@ -1,13 +1,9 @@
-// =============================================================================
-// Archivo: lib/screens/teacher/resultados_encuesta_screen.dart
-// Este archivo muestra la pantalla de resultados de una encuesta específica.
-// =============================================================================
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:form_app/services/firestore_services.dart';
 import 'package:form_app/utils/chart_data_processor.dart';
-import 'package:form_app/widgets/widgets/bar_chart_sample.dart'; // Importa tu widget de gráfico de barras
+import 'package:form_app/widgets/widgets/bar_chart_sample.dart';
 
 class ResultadosEncuestaScreen extends StatefulWidget {
   final String encuestaId;
@@ -67,10 +63,7 @@ class _ResultadosEncuestaScreenState extends State<ResultadosEncuestaScreen> {
           if (preguntas.isEmpty) {
             return const Center(child: Text('Esta encuesta no tiene preguntas definidas.'));
           }
-
-          // ==================================================================
-          // ESTO ES LO CRUCIAL: El StreamBuilder ahora usa el método corregido
-          // ==================================================================
+          // Si hay preguntas, muestra los resultados
           return StreamBuilder<QuerySnapshot>(
             stream: _firestoreService.obtenerRespuestasDeEncuestaPorProfesor(
               widget.encuestaId,

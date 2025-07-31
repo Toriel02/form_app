@@ -1,5 +1,3 @@
-// lib/screens/teacher/teacher_home_screen.dart
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -7,9 +5,9 @@ import 'package:form_app/services/auth_service.dart';
 import 'package:form_app/screens/auth/login_screen.dart';
 import 'package:form_app/screens/teacher/create_form_screen.dart';
 import 'package:form_app/screens/teacher/my_forms_screen.dart';
-import 'package:form_app/screens/teacher/internal_forms_screen.dart'; // Asegúrate de que esta esté importada si la usas
-import 'package:form_app/screens/teacher/create_intform_screen.dart'; // Asumo que este es UploadInternalSurveysScreen
-import 'package:form_app/screens/teacher/teacher_survey_results_list_screen.dart'; // <--- ¡NUEVA IMPORTACIÓN!
+import 'package:form_app/screens/teacher/internal_forms_screen.dart';
+import 'package:form_app/screens/teacher/create_intform_screen.dart';
+import 'package:form_app/screens/teacher/teacher_survey_results_list_screen.dart';
 
 class TeacherHomeScreen extends StatefulWidget {
   const TeacherHomeScreen({super.key});
@@ -179,7 +177,7 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                             color: const Color(0xFF66BB6A),
                             onTap: () => Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (_) => UploadInternalSurveysScreen()), // Asumo que es esta
+                              MaterialPageRoute(builder: (_) => UploadInternalSurveysScreen()),
                             ),
                           ),
                           _buildCard(
@@ -202,7 +200,7 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                             onTap: () {
                               Navigator.push(
                                 context,
-                                MaterialPageRoute(builder: (_) => const TeacherSurveyResultsListScreen()), // <--- ¡AQUÍ ESTÁ EL CAMBIO!
+                                MaterialPageRoute(builder: (_) => const TeacherSurveyResultsListScreen()), // 
                               );
                             },
                           ),
@@ -306,7 +304,7 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                           color: const Color(0xFF66BB6A),
                           onTap: () => Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (_) => UploadInternalSurveysScreen()), // Asumo que es esta
+                            MaterialPageRoute(builder: (_) => UploadInternalSurveysScreen()),
                           ),
                         ),
                         _buildCard(
@@ -329,7 +327,7 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                           onTap: () {
                             Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (_) => const TeacherSurveyResultsListScreen()), // <--- ¡AQUÍ ESTÁ EL CAMBIO!
+                              MaterialPageRoute(builder: (_) => const TeacherSurveyResultsListScreen()), 
                             );
                           },
                         ),

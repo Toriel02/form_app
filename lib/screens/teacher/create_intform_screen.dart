@@ -5,8 +5,8 @@ import 'package:form_app/screens/encuestas/encuesta_2.dart';
 import 'package:form_app/screens/encuestas/encuesta_3.dart';
 import 'package:form_app/screens/encuestas/encuesta_4.dart';
 import 'package:form_app/screens/encuestas/encuesta_5.dart';
-import 'package:form_app/services/firestore_services.dart'; // Asegúrate de que la ruta y el nombre del archivo sean correctos (firestore_service.dart, no firestore_services.dart)
-import 'package:firebase_auth/firebase_auth.dart'; // Necesario para obtener el usuario actual
+import 'package:form_app/services/firestore_services.dart';
+import 'package:firebase_auth/firebase_auth.dart'; 
 
 class UploadInternalSurveysScreen extends StatefulWidget {
   const UploadInternalSurveysScreen({super.key});
@@ -20,7 +20,7 @@ class _UploadInternalSurveysScreenState extends State<UploadInternalSurveysScree
   User? _currentUser;
   Set<String> uploadedTitles = {}; // títulos ya subidos
 
-  // Aquí define tus encuestas predefinidas (ejemplo)
+  
   final List<Map<String, dynamic>> encuestasPredefinidas = [
     {'titulo': 'Dinámica Utilizada', 'preguntas': encuesta1},
     {'titulo': 'Opinión de Explicación', 'preguntas': encuesta2},
