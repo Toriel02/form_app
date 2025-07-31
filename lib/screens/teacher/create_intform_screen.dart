@@ -81,15 +81,31 @@ class _UploadInternalSurveysScreenState extends State<UploadInternalSurveysScree
   Widget build(BuildContext context) {
     if (_currentUser == null) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Subir Encuestas Internas')),
-        body: const Center(child: Text('No hay usuario autenticado')),
+        appBar: AppBar(
+          title: const Text('Subir Encuestas Internas'),
+          backgroundColor: const Color(0xFF1565C0),
+          foregroundColor: Colors.white,
+        ),
+        body: const Center(
+          child: Text('No hay usuario autenticado'),
+        ),
       );
     }
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Subir Encuestas Internas')),
+      backgroundColor: const Color(0xFFF5F7FA),
+      appBar: AppBar(
+        title: const Text(
+          'Subir Encuestas Internas',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        backgroundColor: const Color(0xFF1565C0),
+        foregroundColor: Colors.white,
+        centerTitle: true,
+        elevation: 6,
+      ),
       body: ListView.builder(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(20),
         itemCount: encuestasPredefinidas.length,
         itemBuilder: (context, index) {
           final encuesta = encuestasPredefinidas[index];
@@ -98,17 +114,46 @@ class _UploadInternalSurveysScreenState extends State<UploadInternalSurveysScree
           final estaSubida = uploadedTitles.contains(titulo);
 
           return Card(
-            margin: const EdgeInsets.symmetric(vertical: 8),
-            child: ListTile(
-              title: Text(titulo, style: const TextStyle(fontWeight: FontWeight.bold)),
-              trailing: ElevatedButton(
-                onPressed: estaSubida
-                    ? null
-                    : () => _subirEncuestaIndividual(titulo, preguntas),
-                child: Text(estaSubida ? 'Subida' : 'Subir'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: estaSubida ? Colors.grey : Colors.blue.shade800,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            elevation: 4,
+            margin: const EdgeInsets.symmetric(vertical: 10),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Expanded(
+                    child: Text(
+                      titulo,
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  ElevatedButton(
+                  onPressed: () {
+                    if (!estaSubida) {
+                      _subirEncuestaIndividual(titulo, preguntas);
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                    backgroundColor: estaSubida ? Colors.green : const Color(0xFF1565C0),
+                    foregroundColor: Colors.white, // Asegura texto blanco en ambos estados
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    elevation: 3,
+                  ),
+                  child: Text(
+                    estaSubida ? 'Subida' : 'Subir',
+                    style: const TextStyle(fontSize: 16),
+                  ),
                 ),
+                ],
               ),
             ),
           );
