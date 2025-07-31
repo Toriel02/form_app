@@ -159,13 +159,16 @@ class FirestoreService {
 
   // Función para obtener encuestas por profesor en tiempo real
   Stream<List<Map<String, dynamic>>> obtenerEncuestasPorProfesor(String teacherId) {
-    return _db // Usar _db
-        .collection('encuestas')
-        .where('teacherId', isEqualTo: teacherId)
-        .orderBy('fechaCreacion', descending: true)
-        .snapshots()
-        .map((snapshot) => snapshot.docs.map((doc) => {'id': doc.id, ...doc.data()}).toList());
-  }
+  return FirebaseFirestore.instance
+      .collection('encuestas')
+      .where('teacherId', isEqualTo: teacherId)
+      .snapshots()
+      .map((snapshot) => snapshot.docs.map((doc) {
+            final data = doc.data();
+            data['id'] = doc.id; 
+            return data;
+          }).toList());
+}
 
   // Función para obtener encuestas por profesor una sola vez (no en tiempo real)
   Future<List<Map<String, dynamic>>> obtenerEncuestasPorProfesorUnaVez(String teacherId) async {

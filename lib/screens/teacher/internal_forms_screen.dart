@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:form_app/screens/forms_qr.dart';
 import 'package:form_app/services/firestore_services.dart';
 import 'package:form_app/screens/encuesta_screen.dart'; // Asumo que tienes esta pantalla para mostrar encuesta por ID
 
@@ -59,6 +60,25 @@ class _InternalFormsScreenState extends State<InternalFormsScreen> {
               return ListTile(
                 title: Text(titulo),
                 subtitle: Text(encuestaId ?? ''),
+                trailing: IconButton(
+                icon: const Icon(Icons.qr_code),
+                tooltip: 'Mostrar QR',
+                onPressed: () {
+                  print('Botón QR presionado, ID: $encuestaId');
+                  if (encuestaId != null && encuestaId.isNotEmpty) {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => QrScreen(encuestaId: encuestaId),
+                      ),
+                    );
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('ID de encuesta no válido')),
+                    );
+                  }
+                },
+              ),
               );
             }).toList(),
           );

@@ -1,4 +1,10 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:form_app/screens/encuestas/encuesta_1.dart';
+import 'package:form_app/screens/encuestas/encuesta_2.dart';
+import 'package:form_app/screens/encuestas/encuesta_3.dart';
+import 'package:form_app/screens/encuestas/encuesta_4.dart';
+import 'package:form_app/screens/encuestas/encuesta_5.dart';
 import 'package:form_app/services/firestore_services.dart'; // Asegúrate de que la ruta y el nombre del archivo sean correctos (firestore_service.dart, no firestore_services.dart)
 import 'package:firebase_auth/firebase_auth.dart'; // Necesario para obtener el usuario actual
 
@@ -10,107 +16,103 @@ class UploadInternalSurveysScreen extends StatefulWidget {
 }
 
 class _UploadInternalSurveysScreenState extends State<UploadInternalSurveysScreen> {
-  final FirestoreService _firestoreService = FirestoreService(); // Instancia de tu servicio de Firestore
-  bool _isUploading = false; // Estado para controlar si la subida está en curso
-  String _message = ''; // Mensaje para mostrar el estado al usuario
+  final FirestoreService _firestoreService = FirestoreService();
+  User? _currentUser;
+  Set<String> uploadedTitles = {}; // títulos ya subidos
+
+  // Aquí define tus encuestas predefinidas (ejemplo)
+  final List<Map<String, dynamic>> encuestasPredefinidas = [
+    {'titulo': 'Dinámica Utilizada', 'preguntas': encuesta1},
+    {'titulo': 'Opinión de Explicación', 'preguntas': encuesta2},
+    {'titulo': 'Dificultad y Ritmo del Curso', 'preguntas': encuesta3},
+    {'titulo': 'Recursos y Materiales del Curso', 'preguntas': encuesta4},
+    {'titulo': 'Relevancia del Contenido', 'preguntas': encuesta5},
+  ];
 
   @override
   void initState() {
     super.initState();
-    // Inicia la subida de encuestas automáticamente cuando la pantalla se carga.
-    // La función `subirEncuestasPorProfesor` en FirestoreService ya tiene una lógica
-    // para evitar duplicados si las encuestas ya existen para el profesor.
-    _uploadSurveys(); 
+    _currentUser = FirebaseAuth.instance.currentUser;
+    if (_currentUser != null) {
+      _cargarEncuestasSubidas(_currentUser!.uid);
+    }
   }
 
-  // Función asíncrona para manejar la lógica de subida de encuestas
-  Future<void> _uploadSurveys() async {
-    final user = FirebaseAuth.instance.currentUser; // Obtiene el usuario autenticado actualmente
-    if (user == null) {
-      // Si no hay usuario, actualiza el mensaje y detiene la ejecución
-      setState(() {
-        _message = 'No hay usuario autenticado. Inicia sesión para subir encuestas.';
-      });
+  Future<void> _cargarEncuestasSubidas(String teacherId) async {
+    final encuestas = await _firestoreService.obtenerEncuestasPorProfesorUnaVez(teacherId);
+    final titulos = encuestas.map((e) => e['titulo'] as String).toSet();
+
+    setState(() {
+      uploadedTitles = titulos;
+    });
+  }
+
+  Future<void> _subirEncuestaIndividual(String titulo, List<Map<String, dynamic>> preguntas) async {
+    if (_currentUser == null) return;
+
+    if (uploadedTitles.contains(titulo)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('La encuesta "$titulo" ya fue subida.')),
+      );
       return;
     }
 
-    // Muestra el indicador de carga y el mensaje de "subiendo"
-    setState(() {
-      _isUploading = true;
-      _message = 'Subiendo encuestas predefinidas...';
-    });
+    final id = await _firestoreService.addEncuestaToFirestore(
+      titulo: titulo,
+      preguntas: preguntas,
+      teacherId: _currentUser!.uid,
+    );
 
-    try {
-      // Llama a la función de tu FirestoreService para subir las encuestas
-      await _firestoreService.subirEncuestasPorProfesor(user.uid);
-      // Si la subida es exitosa, actualiza el mensaje
+    if (id != null) {
       setState(() {
-        _message = 'Encuestas subidas correctamente (o ya existían).';
+        uploadedTitles.add(titulo);
       });
-    } catch (e) {
-      // Si ocurre un error, actualiza el mensaje con el error
-      setState(() {
-        _message = 'Error al subir encuestas: ${e.toString()}';
-      });
-      print('Error al subir encuestas en pantalla: $e'); // Imprime el error en la consola para depuración
-    } finally {
-      // Sin importar el resultado, oculta el indicador de carga
-      setState(() {
-        _isUploading = false;
-      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Encuesta "$titulo" subida exitosamente')),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error al subir la encuesta "$titulo". Intenta de nuevo.')),
+      );
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    if (_currentUser == null) {
+      return Scaffold(
+        appBar: AppBar(title: const Text('Subir Encuestas Internas')),
+        body: const Center(child: Text('No hay usuario autenticado')),
+      );
+    }
+
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Subir Encuestas Internas'),
-        backgroundColor: Colors.blue.shade700, // Estilo de la barra de aplicación
-        foregroundColor: Colors.white,
-      ),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              // Muestra un CircularProgressIndicator si está subiendo, de lo contrario, el mensaje
-              _isUploading
-                  ? const CircularProgressIndicator()
-                  : const SizedBox.shrink(), // Oculta el indicador si no está subiendo
-              
-              const SizedBox(height: 20), // Espacio entre el indicador y el mensaje
-              
-              Text(
-                _message,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 18,
-                  color: _message.contains('Error') ? Colors.red : Colors.black87, // Color del texto según el mensaje
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              
-              const SizedBox(height: 30),
-              
-              // Botón para reintentar la subida (útil si hubo un error o para forzar)
-              ElevatedButton.icon(
-                onPressed: _isUploading ? null : _uploadSurveys, // Deshabilita el botón mientras se sube
-                icon: const Icon(Icons.refresh),
-                label: const Text('Reintentar Subida'),
+      appBar: AppBar(title: const Text('Subir Encuestas Internas')),
+      body: ListView.builder(
+        padding: const EdgeInsets.all(16),
+        itemCount: encuestasPredefinidas.length,
+        itemBuilder: (context, index) {
+          final encuesta = encuestasPredefinidas[index];
+          final titulo = encuesta['titulo'] as String;
+          final preguntas = encuesta['preguntas'] as List<Map<String, dynamic>>;
+          final estaSubida = uploadedTitles.contains(titulo);
+
+          return Card(
+            margin: const EdgeInsets.symmetric(vertical: 8),
+            child: ListTile(
+              title: Text(titulo, style: const TextStyle(fontWeight: FontWeight.bold)),
+              trailing: ElevatedButton(
+                onPressed: estaSubida
+                    ? null
+                    : () => _subirEncuestaIndividual(titulo, preguntas),
+                child: Text(estaSubida ? 'Subida' : 'Subir'),
                 style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 25),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  backgroundColor: Colors.blue.shade500,
-                  foregroundColor: Colors.white,
+                  backgroundColor: estaSubida ? Colors.grey : Colors.blue.shade800,
                 ),
               ),
-            ],
-          ),
-        ),
+            ),
+          );
+        },
       ),
     );
   }
