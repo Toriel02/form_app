@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart'; // Importar FirebaseAuth
+import 'package:form_app/services/firestore_services.dart'; // Importar tu FirestoreService
 
 class EncuestaScreen extends StatefulWidget {
   final String id; // ID de la encuesta
@@ -16,6 +17,7 @@ class _EncuestaScreenState extends State<EncuestaScreen> {
   Map<String, dynamic> respuestas = {};
   // Future para cargar los datos de la encuesta una vez
   late Future<Map<String, dynamic>?> _futureEncuesta;
+  final FirestoreService _firestoreService = FirestoreService(); // Instancia del servicio
 
   @override
   void initState() {
@@ -26,14 +28,9 @@ class _EncuestaScreenState extends State<EncuestaScreen> {
   // Función para cargar los datos de la encuesta desde Firestore
   Future<Map<String, dynamic>?> cargarEncuesta() async {
     try {
-      final doc = await FirebaseFirestore.instance
-          .collection('encuestas')
-          .doc(widget.id)
-          .get();
-      if (doc.exists) {
-        return {'id': doc.id, ...doc.data() as Map<String, dynamic>};
-      }
-      return null;
+      // Usar el servicio para obtener la encuesta
+      final encuesta = await _firestoreService.obtenerEncuestaPorId(widget.id);
+      return encuesta;
     } catch (e) {
       print('Error al cargar encuesta: $e');
       // Puedes mostrar un SnackBar aquí o dejar que el FutureBuilder lo maneje
@@ -41,7 +38,7 @@ class _EncuestaScreenState extends State<EncuestaScreen> {
     }
   }
 
-  // Función para registrar las respuestas en Firestore
+  // Función para registrar las respuestas en Firestore usando el servicio
   Future<void> registrarRespuestas() async {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) {
@@ -67,31 +64,25 @@ class _EncuestaScreenState extends State<EncuestaScreen> {
       return;
     }
 
-
     try {
-      // Referencia a la subcolección 'respuestas' dentro del documento de la encuesta
-      final respuestasCollectionRef = FirebaseFirestore.instance
-          .collection('encuestas')
-          .doc(widget.id)
-          .collection('respuestas');
-
-      // Crear un mapa único para la respuesta del estudiante
-      final Map<String, dynamic> respuestaCompleta = {
-        'studentId': user.uid, // ID del estudiante que respondió
-        'encuestaId': widget.id, // ID de la encuesta a la que se respondió
-        'teacherId': teacherId, // ID del profesor de la encuesta (para reglas de seguridad)
-        'fechaEnvio': FieldValue.serverTimestamp(), // Marca de tiempo del envío
-        'respuestasDetalle': respuestas, // Todas las respuestas del mapa
-      };
-
-      // Añadir un único documento a la subcolección 'respuestas'
-      await respuestasCollectionRef.add(respuestaCompleta);
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Respuestas enviadas correctamente.')),
+      // **** LLAMADA A LA FUNCIÓN addResponseToFirestore DE TU SERVICIO ****
+      final responseDocId = await _firestoreService.addResponseToFirestore(
+        encuestaId: widget.id,
+        teacherId: teacherId,
+        responseData: respuestas, // Pasar el mapa completo de respuestas
       );
-      // Navegar de vuelta después de enviar
-      Navigator.pop(context);
+
+      if (responseDocId != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Respuestas enviadas correctamente.')),
+        );
+        // Navegar de vuelta después de enviar
+        Navigator.pop(context);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Error: No se pudo registrar la respuesta.')),
+        );
+      }
     } on FirebaseException catch (e) {
       // Capturar errores específicos de Firebase
       ScaffoldMessenger.of(context).showSnackBar(
@@ -110,9 +101,11 @@ class _EncuestaScreenState extends State<EncuestaScreen> {
   // Widget para construir cada tipo de pregunta
   Widget buildPregunta(Map<String, dynamic> pregunta) {
     final tipo = pregunta['tipo'];
+    // Usar 'id' de la pregunta para la clave en el mapa de respuestas
     final idPregunta = pregunta['id'] as String; // Asegurarse de que 'id' es String
 
     // Inicializar la respuesta para esta pregunta si aún no existe
+    // Esto es importante para que el RadioListTile y DropdownButtonFormField tengan un valor inicial
     if (!respuestas.containsKey(idPregunta)) {
       respuestas[idPregunta] = null; // O un valor por defecto si aplica
     }
@@ -122,7 +115,8 @@ class _EncuestaScreenState extends State<EncuestaScreen> {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(pregunta['pregunta'], style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            // CAMBIO: Usar 'texto' en lugar de 'pregunta'
+            Text(pregunta['texto'], style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
             DropdownButtonFormField<int>(
               decoration: const InputDecoration(border: OutlineInputBorder(), hintText: 'Selecciona una opción'),
@@ -139,11 +133,13 @@ class _EncuestaScreenState extends State<EncuestaScreen> {
             const SizedBox(height: 16),
           ],
         );
-      case 'booleana': // Cambiado de 'si_no' a 'booleana' para coincidir con tus datos de ejemplo
+      // CAMBIO: Usar 'si_no' en lugar de 'booleana'
+      case 'si_no':
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(pregunta['pregunta'], style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            // CAMBIO: Usar 'texto' en lugar de 'pregunta'
+            Text(pregunta['texto'], style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
             Row(
               children: ['Sí', 'No'].map((op) {
                 return Expanded(
@@ -163,7 +159,8 @@ class _EncuestaScreenState extends State<EncuestaScreen> {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(pregunta['pregunta'], style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            // CAMBIO: Usar 'texto' en lugar de 'pregunta'
+            Text(pregunta['texto'], style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
             TextFormField(
               maxLines: 3,
@@ -232,11 +229,11 @@ class _EncuestaScreenState extends State<EncuestaScreen> {
                   child: ElevatedButton(
                     onPressed: () async {
                       // Validación: asegurar que las preguntas obligatorias estén respondidas
-                      // Las preguntas obligatorias son 'escala' y 'booleana' (antes 'si_no')
+                      // Las preguntas obligatorias son 'escala' y 'si_no'
                       final preguntasIncompletas = preguntas.where((pregunta) {
                         final tipo = pregunta['tipo'];
                         final idPregunta = pregunta['id'] as String;
-                        final esObligatoria = tipo == 'escala' || tipo == 'booleana'; // Tipos obligatorios
+                        final esObligatoria = tipo == 'escala' || tipo == 'si_no'; // Tipos obligatorios
 
                         // Verifica si la respuesta para esta pregunta obligatoria es nula o vacía
                         return esObligatoria && (respuestas[idPregunta] == null || respuestas[idPregunta].toString().isEmpty);
