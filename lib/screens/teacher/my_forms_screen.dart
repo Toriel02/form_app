@@ -3,6 +3,7 @@ import 'package:form_app/services/firestore_services.dart';
 import 'package:cloud_firestore/cloud_firestore.dart'; // Para el tipo Timestamp
 import 'package:cached_network_image/cached_network_image.dart'; // Para cargar imágenes de red con caché
 import 'package:url_launcher/url_launcher.dart'; // Para abrir la URL del formulario
+import 'package:flutter/services.dart';
 
 class MyFormsScreen extends StatefulWidget {
   const MyFormsScreen({super.key});
@@ -130,7 +131,7 @@ class _MyFormsScreenState extends State<MyFormsScreen> {
                     imageUrl: qrImageUrl,
                     placeholder: (context, url) => const CircularProgressIndicator(),
                     errorWidget: (context, url, error) => const Icon(Icons.error, size: 50, color: Colors.red),
-                    width: 250, // Tamaño más grande en el diálogo
+                    width: 250, 
                     height: 250,
                     fit: BoxFit.contain,
                   )
@@ -167,29 +168,16 @@ class _MyFormsScreenState extends State<MyFormsScreen> {
               },
               child: const Text('Cerrar'),
             ),
-            TextButton(
-              onPressed: () async {
-                final Uri url = Uri.parse(formUrl);
-                if (await canLaunchUrl(url)) {
-                  await launchUrl(url);
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('No se pudo abrir la URL: $formUrl')),
-                  );
-                }
-                Navigator.of(context).pop(); // Cerrar diálogo después de intentar abrir
-              },
-              child: const Text('Abrir Formulario'),
-            ),
+            
             // Opcional: Botón para copiar la URL
             TextButton(
               onPressed: () {
-                // Requiere 'package:flutter/services.dart'
-                // Clipboard.setData(ClipboardData(text: formUrl));
-                // ScaffoldMessenger.of(context).showSnackBar(
-                //   const SnackBar(content: Text('URL copiada al portapapeles.')),
-                // );
-                // Navigator.of(context).pop();
+                 
+                 Clipboard.setData(ClipboardData(text: formUrl));
+                 ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('URL copiada al portapapeles.')),
+                 );
+                 Navigator.of(context).pop();
               },
               child: const Text('Copiar URL'),
             ),
