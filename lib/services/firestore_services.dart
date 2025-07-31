@@ -1,7 +1,12 @@
 // lib/services/firestore_service.dart
 import 'package:flutter/foundation.dart'; // Importar para kDebugMode
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart'; // Para obtener el UID del estudiante
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:form_app/screens/encuestas/encuesta_1.dart';
+import 'package:form_app/screens/encuestas/encuesta_2.dart';
+import 'package:form_app/screens/encuestas/encuesta_3.dart';
+import 'package:form_app/screens/encuestas/encuesta_4.dart';
+import 'package:form_app/screens/encuestas/encuesta_5.dart'; // Para obtener el UID del estudiante
 
 class FirestoreService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -39,6 +44,86 @@ class FirestoreService {
       print("Error al añadir el documento del formulario: $e");
       return null;
     }
+  }
+
+  // FUNCIÓN: GUARDADO DE ENCUESTAS PREDEFINIDAS
+  Future<String?> addEncuestaToFirestore({
+  required String titulo,
+  required List<Map<String, dynamic>> preguntas,
+  required String teacherId,
+  }) async {
+    try {
+      final encuestaData = {
+        "titulo": titulo,
+        "preguntas": preguntas,
+        "teacherId": teacherId,
+        "fechaCreacion": FieldValue.serverTimestamp(),
+      };
+
+      final docRef = await FirebaseFirestore.instance.collection('encuestas').add(encuestaData);
+      print('Encuesta añadida con ID: ${docRef.id}');
+      return docRef.id;
+    } catch (e) {
+      print('Error al añadir encuesta: $e');
+      return null;
+    }
+  }
+
+  // Función que sube todas las encuestas del profesor usando la anterior
+  Future<void> subirEncuestasPorProfesor(String teacherId) async {
+    final firestore = FirebaseFirestore.instance;
+
+    // Verifica si ya hay encuestas del profesor
+    final existing = await firestore
+        .collection('encuestas')
+        .where('teacherId', isEqualTo: teacherId)
+        .limit(1) // Solo necesitamos saber si hay al menos una
+        .get();
+
+    if (existing.docs.isNotEmpty) {
+      print('Ya existen encuestas para este profesor. No se suben duplicados.');
+      return;
+    }
+
+    final encuestas = [
+      {'titulo': 'Dinámica Utilizada', 'preguntas': encuesta1},
+      {'titulo': 'Opinión de Explicación', 'preguntas': encuesta2},
+      {'titulo': 'Dificultad y Ritmo del Curso', 'preguntas': encuesta3},
+      {'titulo': 'Recursos y Materiales del Curso', 'preguntas': encuesta4},
+      {'titulo': 'Relevancia del Contenido', 'preguntas': encuesta5},
+    ];
+
+    for (var encuesta in encuestas) {
+      final id = await addEncuestaToFirestore(
+        titulo: encuesta['titulo'] as String,
+        preguntas: encuesta['preguntas'] as List<Map<String, dynamic>>,
+        teacherId: teacherId,
+      );
+      print('Encuesta "${encuesta['titulo']}" subida con ID: $id');
+    }
+  }
+
+  // La función para obtener encuestas por profesor también dentro de aquí
+  Stream<List<Map<String, dynamic>>> obtenerEncuestasPorProfesor(String teacherId) {
+    return FirebaseFirestore.instance
+      .collection('encuestas')
+      .where('teacherId', isEqualTo: teacherId)
+      .orderBy('fechaCreacion', descending: true)
+      .snapshots()
+      .map((snapshot) => snapshot.docs.map((doc) => {'id': doc.id, ...doc.data()}).toList() );
+  }
+
+  Future<List<Map<String, dynamic>>> obtenerEncuestasPorProfesorUnaVez(String teacherId) async {
+    final snapshot = await FirebaseFirestore.instance
+        .collection('encuestas')
+        .where('teacherId', isEqualTo: teacherId)
+        .get();
+
+    return snapshot.docs.map((doc) {
+      final data = doc.data();
+      data['id'] = doc.id;
+      return data;
+    }).toList();
   }
 
   // **** NUEVA FUNCIÓN: Añadir una respuesta a Firestore ****
