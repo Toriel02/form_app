@@ -155,65 +155,77 @@ class _CreateFormScreenState extends State<CreateFormScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFF5F7FA),
       appBar: AppBar(
-        title: const Text("Crear Nuevo Formulario"),
-        backgroundColor: Colors.blue.shade700, // Color de la barra de aplicación
-        foregroundColor: Colors.white,         // Color del texto y los iconos
+        title: const Text(
+          "Crear Nuevo Formulario",
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 20,
+            letterSpacing: 0.5,
+          ),
+        ),
+        centerTitle: true,
+        backgroundColor: const Color(0xFF1565C0),
+        foregroundColor: Colors.white,
+        elevation: 6,
       ),
-      body: SingleChildScrollView( // Permite desplazamiento si el contenido es demasiado largo
-        padding: const EdgeInsets.all(16.0),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(24.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch, // Estirar los widgets horizontalmente
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Campo de texto para el título del formulario
             TextField(
               controller: _titleController,
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 labelText: 'Título del Formulario',
                 hintText: 'Ej: Encuesta de Satisfacción del Cliente',
-                border: OutlineInputBorder(), // Borde alrededor del campo
-                prefixIcon: Icon(Icons.title), // Icono decorativo
+                prefixIcon: const Icon(Icons.title),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                filled: true,
+                fillColor: Colors.white,
               ),
-              keyboardType: TextInputType.text, // Tipo de teclado para texto
-              textCapitalization: TextCapitalization.sentences, // Capitaliza la primera letra
+              keyboardType: TextInputType.text,
+              textCapitalization: TextCapitalization.sentences,
             ),
-            const SizedBox(height: 20), // Espacio vertical entre los campos
+            const SizedBox(height: 20),
 
-            // Campo de texto para la URL del formulario
             TextField(
               controller: _urlController,
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 labelText: 'URL del Formulario',
                 hintText: 'Ej: https://docs.google.com/forms/d/e/...',
-                border: OutlineInputBorder(),
-                prefixIcon: Icon(Icons.link),
+                prefixIcon: const Icon(Icons.link),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                filled: true,
+                fillColor: Colors.white,
               ),
-              keyboardType: TextInputType.url, // Sugiere teclado URL
+              keyboardType: TextInputType.url,
             ),
-            const SizedBox(height: 30), // Espacio antes del botón
+            const SizedBox(height: 32),
 
-            // Botón para crear el formulario
             ElevatedButton.icon(
-              onPressed: _createForm, // Llama a la función _createForm al presionar
+              onPressed: _createForm,
               icon: const Icon(Icons.save),
               label: const Text(
                 'Guardar Formulario',
                 style: TextStyle(fontSize: 18),
               ),
               style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 15), // Relleno interno del botón
+                padding: const EdgeInsets.symmetric(vertical: 16),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8), // Bordes redondeados del botón
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                backgroundColor: Colors.blue.shade600, // Color de fondo del botón
-                foregroundColor: Colors.white,          // Color del texto y el icono del botón
+                backgroundColor: const Color(0xFF1565C0),
+                foregroundColor: Colors.white,
+                elevation: 4,
+                shadowColor: const Color(0xFF0D47A1),
               ),
             ),
-            const SizedBox(height: 30),
-
-            // En esta pantalla, ya NO mostramos el QR después de la creación
-            // ni el botón de guardar en galería, ya que se sube automáticamente a Storage.
-            // La visualización se hará en la pantalla "Mis Formularios" leyendo la URL de Firestore.
           ],
         ),
       ),
