@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:form_app/screens/teacher/create_intform_screen.dart';
 import 'package:form_app/screens/teacher/internal_forms_screen.dart';
 import 'package:form_app/screens/teacher/my_forms_screen.dart';
 import 'package:form_app/services/auth_service.dart'; // Asegúrate de que la ruta sea correcta
@@ -131,7 +132,7 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const InternalFormsScreen()),
+                    MaterialPageRoute(builder: (context) => const UploadInternalSurveysScreen()),
                   );
                 },
                 icon: const Icon(Icons.assignment),
