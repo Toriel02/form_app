@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:form_app/screens/encuesta_screen.dart';
+import 'package:form_app/services/firestore_services.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
 class QRScannerScreen extends StatefulWidget {
@@ -27,50 +28,48 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
   }
 
   Future<void> _verificarEncuesta(String code) async {
-    final doc = await FirebaseFirestore.instance
-        .collection('encuestas')
-        .doc(code)
-        .get();
+  final encuesta = await FirestoreService().obtenerEncuestaPorId(code);
 
-    final encuesta = doc.data();
+  if (!mounted) return;
 
-    if (!mounted) return;
+  showDialog(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: const Text('Código QR detectado'),
+      content: Text(encuesta != null
+          ? 'Encuesta encontrada: ${encuesta['titulo']}'
+          : 'No se encontró ninguna encuesta con ese ID.'),
+      actions: [
+        TextButton(
+          onPressed: () {
+            Navigator.pop(context);
+            _dialogShown = false;
 
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Código QR detectado'),
-        content: Text(encuesta != null
-            ? 'Encuesta encontrada: ${encuesta['titulo']}'
-            : 'No se encontró ninguna encuesta con ese ID.'),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              _dialogShown = false;
-
-              if (encuesta != null) {
+            if (encuesta != null) {
+              Future.delayed(Duration.zero, () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (_) => EncuestaScreen(id: code),
                   ),
                 );
-              } else {
-                controller.start();
-              }
-            },
-            child: const Text('Continuar'),
-          ),
-        ],
-      ),
-    );
-  }
+              });
+            } else {
+              controller.start();
+            }
+          },
+          child: const Text('Continuar'),
+        ),
+      ],
+    ),
+  );
+}
 
   void _onDetect(BarcodeCapture barcode) {
     final String? code = barcode.barcodes.first.rawValue;
 
     if (code != null && !_dialogShown) {
+      print('Código QR detectado: $code');
       controller.stop();
       _dialogShown = true;
       _verificarEncuesta(code);

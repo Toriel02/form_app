@@ -184,6 +184,12 @@ class FirestoreService {
     }).toList();
   }
 
+  // NAVEGACION ESCANER
+  Future<Map<String, dynamic>?> obtenerEncuestaPorId(String id) async {
+    final doc = await _db.collection('encuestas').doc(id).get();
+    return doc.data();
+  }
+
   // **** NUEVA FUNCIÓN: Añadir una respuesta a Firestore ****
   Future<String?> addResponseToFirestore({
     required String formId,           // El ID del formulario al que se responde
